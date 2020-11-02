@@ -1,0 +1,44 @@
+diff --git a/Makefile b/Makefile
+index cbe9a02..34db266 100644
+--- a/Makefile
++++ b/Makefile
+@@ -22,7 +22,7 @@ BISECT=-package bisect_ppx
+ PREDICATES=-predicates coverage
+ endif
+
+-export PATH:=$(shell cd compiler && stack path --local-install-root)/bin:${PATH}
++export PATH:=$(shell cd compiler && stack path --local-install-root --system-ghc)/bin:${PATH}
+
+ KORE_SUBMODULE:=.build/kore
+
+@@ -35,7 +35,7 @@ clean:
+ 	rm -rf .build/standalone .build/llvm .build/node .build/check .build/plugin-node .build/plugin-standalone .build/vm compiler/.stack-work .build/haskell
+
+ distclean: clean
+-	cd .build/rv-k && mvn clean
++	cd .build/rv-k && mvn -Dmaven.repo.local=$(HOME)/.m2 clean
+ 	cd .build/kore && stack clean
+
+ build: tangle .build/standalone/iele-testing-kompiled/interpreter .build/vm/iele-vm assembler .build/check/well-formedness-kompiled/interpreter
+@@ -45,10 +45,10 @@ llvm: tangle .build/llvm/iele-testing.kore
+ haskell: tangle .build/haskell/definition.kore
+
+ assembler:
+-	cd compiler && stack build --install-ghc
++	cd compiler && stack build --system-ghc --no-nix
+
+ install: assembler
+-	cd compiler && stack install
++	cd compiler && stack install --system-ghc --no-nix
+ 	cp .build/vm/iele-vm .build/vm/iele-test-client .build/vm/iele-test-vm ~/.local/bin
+
+ # Tangle from *.md files
+@@ -176,7 +176,7 @@ coverage:
+
+ deps: k-deps ocaml-deps
+ k-deps:
+-	cd .build/rv-k && mvn package
++	cd .build/rv-k && mvn -Dmaven.repo.local=$(HOME)/.m2 package
+
+ ocaml-deps:
+ 	opam init
